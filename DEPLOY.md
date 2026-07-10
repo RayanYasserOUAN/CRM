@@ -86,24 +86,32 @@ Once done, you'll get a URL like `https://crm-xxxxxx.vercel.app`.
 
 ## 4. Post-Deployment — Seed Data
 
-The database is empty after the first deploy. You need to seed it with demo data.
+The database is empty after the first deploy. You need to create the tables and seed them with demo data.
 
-### Option 1: Seed locally via your production DB
+### Option 1: Supabase SQL Editor (recommended)
 
-Replace `DATABASE_URL` in your local `.env` with the Supabase connection string (temporarily), then run:
+This works even if your local machine can't reach the database directly:
+
+**Step A — Create tables:**
+1. Go to **Supabase Dashboard** → **SQL Editor**
+2. Open `prisma/migrations/<timestamp>_init/migration.sql` from your project
+3. Copy the entire file and paste it into the SQL Editor
+4. Click **Run** — this creates the `User`, `Contact`, and `Deal` tables
+
+**Step B — Insert seed data:**
+1. In a new SQL Editor tab, open `seed.sql` from your project
+2. Copy and paste it, then click **Run**
+3. This inserts the admin user, 10 contacts, and 8 deals
+
+### Option 2: Seed locally via your production DB
+
+If your local machine has direct connectivity to Supabase (no IPv6 issues), swap `DATABASE_URL` in `.env` with the Supabase connection string, then:
 
 ```bash
 npx prisma db seed
 ```
 
 Then restore your local `.env` to the local PostgreSQL URL.
-
-### Option 2: Supabase SQL Editor
-
-1. Go to Supabase dashboard → **SQL Editor**
-2. Create a seed script. Or use a one-time migration:
-
-In your deployed app, visit `/login` and sign in — you won't be able to yet because no user exists. Run the seed manually.
 
 ### Option 3: Vercel CLI
 
@@ -161,6 +169,7 @@ supabase start
 | `PrismaClientInitializationError` | Check `DATABASE_URL` is correct in Vercel env vars |
 | `Migration not found` | Make sure `prisma/migrations/` is committed to git |
 | `bcryptjs` import error on Vercel | Ensure `serverExternalPackages: ["bcryptjs"]` is in `next.config.ts` |
+| `Can't reach database server` | Supabase uses IPv6 — use **SQL Editor** (Option 1 in section 4) instead of local tools |
 | Blank page after login | Check browser console for errors; ensure API routes return 200 |
 | 401 on API calls | Clear cookies or re-login; token expired |
 
