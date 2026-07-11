@@ -1,23 +1,38 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getAuthUser } from "@/lib/auth"
 import { db } from "@/lib/prisma"
+import { apiHandler, unauthorized } from "@/lib/api-helpers"
+import { pick, CONTACT_FIELDS } from "@/lib/utils"
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export const PATCH = apiHandler(async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   const auth = await getAuthUser()
-  if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!auth) return unauthorized()
 
   const { id } = await params
-  const data = await req.json()
-  const contact = await db.contact.update({ where: { id: Number(id) }, data })
+  const body = await req.json()
+
+  // Whitelist: only allow fields defined in CONTACT_FIELDS
+  // This prevents clients from setting `id`, `createdAt`, `updatedAt`, etc.
+  const data = pick(body, CONTACT_FIELDS)
+
+  const contact = await db.contact.update({
+    where: { id: Number(id) },
+    data: data as Record<string, unknown>,
+  })
   return NextResponse.json({ contact })
-}
+})
 
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export const DELETE = apiHandler(async (req: NextRequest, { params }: { params: Promise<{ id: string }> }) => {
   const auth = await getAuthUser()
-  if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!auth) return unauthorized()
 
   const { id } = await params
-  await db.deal.updateMany({ where: { contactId: Number(id) }, data: { contactId: null } })
+
+  // Disconnect deals before deleting the contact
+  await db.deal.updateMany({
+    where: { contactId: Number(id) },
+    data: { contactId: null },
+  })
   await db.contact.delete({ where: { id: Number(id) } })
   return NextResponse.json({ success: true })
-}
+})

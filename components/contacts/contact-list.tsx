@@ -36,11 +36,15 @@ export function ContactList({ contacts, onRefresh }: ContactListProps) {
   const [creating, setCreating] = useState(false)
 
   const handleSave = async (data: any) => {
-    const method = data.id ? "PATCH" : "POST"
-    const res = await fetch("/api/contacts" + (data.id ? `/${data.id}` : ""), {
+    // Extract id from the payload — it's used for routing, not sent in the body.
+    // Sending id in a PATCH body is a security risk and data-integrity bug:
+    // the server should derive the resource identity from the URL.
+    const { id, ...body } = data
+    const method = id ? "PATCH" : "POST"
+    const res = await fetch("/api/contacts" + (id ? `/${id}` : ""), {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify(body),
     })
     if (res.ok) {
       setEditing(null)

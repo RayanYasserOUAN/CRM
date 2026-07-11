@@ -1,7 +1,14 @@
 import { cookies } from "next/headers"
 import jwt from "jsonwebtoken"
 
-const SECRET = process.env.JWT_SECRET || "crm-dev-secret-key-change-in-production"
+const SECRET = process.env.JWT_SECRET
+
+if (!SECRET) {
+  throw new Error(
+    "JWT_SECRET environment variable is not set. " +
+    "Generate one with: openssl rand -base64 32"
+  )
+}
 
 export interface JwtPayload {
   userId: number

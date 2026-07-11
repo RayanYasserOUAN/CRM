@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server"
 import { getAuthUser } from "@/lib/auth"
 import { db } from "@/lib/prisma"
+import { apiHandler, unauthorized, notFound } from "@/lib/api-helpers"
 
-export async function GET() {
+export const GET = apiHandler(async () => {
   const auth = await getAuthUser()
-  if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  if (!auth) return unauthorized()
 
   const user = await db.user.findUnique({ where: { id: auth.userId } })
-  if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 })
+  if (!user) return notFound("User not found")
 
   return NextResponse.json({ name: user.name, username: user.username })
-}
+})

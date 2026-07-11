@@ -13,6 +13,7 @@ build/
 .env.local
 .env.production
 .env*.local
+# Keep .env.example tracked — it's the template, not real secrets
 
 # database
 *.db

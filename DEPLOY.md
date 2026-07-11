@@ -147,13 +147,13 @@ seed.sql
 
 ### Option 2: Seed locally via your production DB
 
-If your local machine has direct connectivity to Supabase (no IPv6 issues), swap `DATABASE_URL` in `.env` with the Supabase connection string, then:
+If your local machine has direct connectivity to Supabase (no IPv6 issues), swap `DATABASE_URL` in `.env.local` with the Supabase connection string, then:
 
 ```bash
 npx prisma db seed
 ```
 
-Then restore your local `.env` to the local PostgreSQL URL.
+Then restore your local `.env.local` to the local PostgreSQL URL.
 
 ### Option 3: Vercel CLI
 
@@ -185,7 +185,7 @@ docker run -d \
 Then:
 
 ```bash
-cp .env.example .env
+cp .env.example .env.local
 npm install
 npx prisma generate
 npx prisma migrate dev --name init
