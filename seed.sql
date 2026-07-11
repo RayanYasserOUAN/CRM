@@ -6,7 +6,9 @@
 
 -- 1. Admin User
 INSERT INTO "User" (username, password, name)
-VALUES ('admin', '$2a$10$Wrpg5BinswCPP0aAe7YTJ.u0uUToRr0Ho3bBgncm3UKFS3Ktbkp5G', 'Admin');
+VALUES ('admin', '$2a$10$Wrpg5BinswCPP0aAe7YTJ.u0uUToRr0Ho3bBgncm3UKFS3Ktbkp5G', 'Admin')
+ON CONFLICT (username) DO NOTHING;
+
 
 -- 2. Contacts (10)
 INSERT INTO "Contact" (name, email, phone, company, status) VALUES
