@@ -1,27 +1,29 @@
 import { cookies } from "next/headers"
 import jwt from "jsonwebtoken"
 
-const SECRET = process.env.JWT_SECRET
-
-if (!SECRET) {
-  throw new Error(
-    "JWT_SECRET environment variable is not set. " +
-    "Generate one with: openssl rand -base64 32"
-  )
-}
-
 export interface JwtPayload {
   userId: number
   username: string
 }
 
+function getSecret(): string {
+  const secret = process.env.JWT_SECRET
+  if (!secret) {
+    throw new Error(
+      "JWT_SECRET environment variable is not set. " +
+      "Generate one with: openssl rand -base64 32"
+    )
+  }
+  return secret
+}
+
 export function signToken(payload: JwtPayload): string {
-  return jwt.sign(payload, SECRET, { expiresIn: "7d" })
+  return jwt.sign(payload, getSecret(), { expiresIn: "7d" })
 }
 
 export function verifyToken(token: string): JwtPayload | null {
   try {
-    return jwt.verify(token, SECRET) as JwtPayload
+    return jwt.verify(token, getSecret()) as JwtPayload
   } catch {
     return null
   }
