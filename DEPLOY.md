@@ -34,6 +34,12 @@ The string looks like:
 postgresql://postgres:xxxxxx@db.xxxxxxx.supabase.co:5432/postgres
 ```
 
+> **⚠ IPv6 Restriction:** Supabase's managed Postgres only accepts connections over **IPv6**.
+> Vercel build runners use **IPv4-only** infrastructure and cannot reach the database
+> directly. This means `npx prisma migrate deploy` in the build command **will fail**.
+> You must run migrations manually via the Supabase SQL Editor after deployment
+> (see [Section 4.1](#41-supabase-sql-editor-recommended)).
+
 ---
 
 ## 3. Vercel — App Deployment
@@ -71,10 +77,12 @@ In the **Environment Variables** section, add:
 Under **Build and Output Settings**, override the **Build Command** to:
 
 ```bash
-npx prisma generate && npx prisma migrate deploy && next build
+npx prisma generate && next build
 ```
 
-This ensures Prisma migrations run before each deployment.
+> **Note:** `npx prisma migrate deploy` is intentionally **removed** from the build
+> command because Vercel build runners cannot connect to Supabase Postgres (IPv6).
+> Migrations must be applied manually via the SQL Editor after deploy — see [Section 4.1](#41-supabase-sql-editor-recommended).
 
 ### 3.5 Deploy
 
@@ -86,22 +94,40 @@ Once done, you'll get a URL like `https://crm-xxxxxx.vercel.app`.
 
 ## 4. Post-Deployment — Seed Data
 
-The database is empty after the first deploy. You need to create the tables and seed them with demo data.
+The database is empty after the first deploy. You must apply the migration SQL first to create the tables, then seed with demo data.
 
 ### Option 1: Supabase SQL Editor (recommended)
 
-This works even if your local machine can't reach the database directly:
+> ✅ This is the **only reliable method** because Vercel builds can't reach Supabase
+> directly (IPv6). It works from any machine with a browser — no local tools needed.
 
-**Step A — Create tables:**
+**Step 1 — Run the migration (creates tables):**
+
+```bash
+# Locate this file in your project:
+prisma/migrations/20250710000000_init/migration.sql
+```
+
 1. Go to **Supabase Dashboard** → **SQL Editor**
-2. Open `prisma/migrations/<timestamp>_init/migration.sql` from your project
-3. Copy the entire file and paste it into the SQL Editor
-4. Click **Run** — this creates the `User`, `Contact`, and `Deal` tables
+2. Click **New query**
+3. Open the file above and **copy the entire contents** into the editor
+4. Click **Run** — you should see `NOTICE: CREATE TABLE / PRIMARY KEY` for each table
+5. ✅ Verify tables were created: go to **Table Editor** — you should see empty `User`, `Contact`, and `Deal` tables
 
-**Step B — Insert seed data:**
-1. In a new SQL Editor tab, open `seed.sql` from your project
-2. Copy and paste it, then click **Run**
-3. This inserts the admin user, 10 contacts, and 8 deals
+**Step 2 — Insert seed data:**
+
+```bash
+# Locate this file in your project root:
+seed.sql
+```
+
+1. Open a **new** SQL Editor tab
+2. Copy the entire `seed.sql` file and paste it in
+3. Click **Run**
+4. ✅ Verify data: go to **Table Editor** and check that rows appear in each table
+
+> **⚠ Order matters!** Running `seed.sql` before the migration will fail because
+> the tables don't exist yet. Always run the migration SQL first.
 
 ### Option 2: Seed locally via your production DB
 
@@ -167,9 +193,11 @@ supabase start
 | Problem | Fix |
 |---|---|
 | `PrismaClientInitializationError` | Check `DATABASE_URL` is correct in Vercel env vars |
+| Build fails with `Can't reach database server` | Remove `prisma migrate deploy` from build command (IPv6). Apply migrations via SQL Editor instead |
+| `relation "User" does not exist` | You ran `seed.sql` **before** the migration SQL. Go back and run the migration SQL first (see Section 4.1 Step 1) |
 | `Migration not found` | Make sure `prisma/migrations/` is committed to git |
 | `bcryptjs` import error on Vercel | Ensure `serverExternalPackages: ["bcryptjs"]` is in `next.config.ts` |
-| `Can't reach database server` | Supabase uses IPv6 — use **SQL Editor** (Option 1 in section 4) instead of local tools |
+| `Can't reach database server` | Supabase uses **IPv6 only** — Vercel builds can't connect directly. Use **SQL Editor** ([Section 4.1](#41-supabase-sql-editor-recommended)) to run migrations + seed after deploy |
 | Blank page after login | Check browser console for errors; ensure API routes return 200 |
 | 401 on API calls | Clear cookies or re-login; token expired |
 
