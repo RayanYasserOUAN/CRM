@@ -2,13 +2,22 @@
 -- FlowCRM Seed Data for Supabase SQL Editor
 -- Paste this into Supabase Dashboard → SQL Editor
 -- Run AFTER Vercel deploys and migrations run
+-- Safe to re-run — clears existing data first
 -- =============================================
+
+-- Clear existing data (order matters due to foreign keys)
+DELETE FROM "Deal";
+DELETE FROM "Contact";
+DELETE FROM "User";
+
+-- Reset auto-increment sequences
+ALTER SEQUENCE "Deal_id_seq" RESTART WITH 1;
+ALTER SEQUENCE "Contact_id_seq" RESTART WITH 1;
+ALTER SEQUENCE "User_id_seq" RESTART WITH 1;
 
 -- 1. Admin User
 INSERT INTO "User" (username, password, name)
-VALUES ('admin', '$2a$10$Wrpg5BinswCPP0aAe7YTJ.u0uUToRr0Ho3bBgncm3UKFS3Ktbkp5G', 'Admin')
-ON CONFLICT (username) DO NOTHING;
-
+VALUES ('admin', '$2a$10$Wrpg5BinswCPP0aAe7YTJ.u0uUToRr0Ho3bBgncm3UKFS3Ktbkp5G', 'Admin');
 
 -- 2. Contacts (10)
 INSERT INTO "Contact" (name, email, phone, company, status) VALUES
