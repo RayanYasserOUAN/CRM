@@ -24,20 +24,36 @@ This guide walks through deploying FlowCRM to production using **Vercel** (hosti
 
 ### 2.2 Get the connection string
 
+Supabase provides two ways to connect. **Always use the pooler** for Vercel.
+
+#### Option A: Connection Pooler (✅ required for Vercel)
+
+The pooler supports **IPv4** and handles concurrency. This is what Vercel needs at runtime.
+
 1. In your Supabase dashboard, go to **Project Settings** → **Database**
-2. Under **Connection string**, select **URI**
+2. Under **Connection string**, select the **Pooling** tab
 3. Copy the full `postgresql://` string
 4. **Replace `[YOUR-PASSWORD]`** with the database password you set in step 2.1
 
 The string looks like:
 ```
+postgresql://postgres:xxxxxx@aws-0-xx.pooler.supabase.com:6543/postgres?pgbouncer=true
+```
+
+Use this string for `DATABASE_URL` in Vercel environment variables.
+
+#### Option B: Direct (IPv6 only, won't work on Vercel)
+
+Standard URI on port `5432`. Only works over IPv6 — **will fail** in Vercel builds and serverless functions.
+
+```
 postgresql://postgres:xxxxxx@db.xxxxxxx.supabase.co:5432/postgres
 ```
 
-> **⚠ IPv6 Restriction:** Supabase's managed Postgres only accepts connections over **IPv6**.
-> Vercel build runners use **IPv4-only** infrastructure and cannot reach the database
-> directly. This means `npx prisma migrate deploy` in the build command **will fail**.
-> You must run migrations manually via the Supabase SQL Editor after deployment
+> **⚠ IPv6 Restriction:** Supabase's managed Postgres only accepts connections over **IPv6**
+> on the direct endpoint (port 5432). Vercel uses **IPv4-only** infrastructure, so both the
+> **build environment** and **serverless functions** cannot reach it. Always use the pooler
+> (port 6543) for Vercel. Migrations must still be run manually via the Supabase SQL Editor
 > (see [Section 4.1](#41-supabase-sql-editor-recommended)).
 
 ---
@@ -69,7 +85,7 @@ In the **Environment Variables** section, add:
 
 | Name | Value |
 |---|---|
-| `DATABASE_URL` | The `postgresql://` connection string from Supabase (step 2.2) |
+| `DATABASE_URL` | The **pooling** connection string from Supabase (step 2.2 Option A — port 6543, not 5432) |
 | `JWT_SECRET` | A random secret string (run `openssl rand -base64 32` to generate) |
 
 ### 3.4 Override build command
@@ -192,8 +208,9 @@ supabase start
 
 | Problem | Fix |
 |---|---|
-| `PrismaClientInitializationError` | Check `DATABASE_URL` is correct in Vercel env vars |
+| `PrismaClientInitializationError` | Check `DATABASE_URL` is correct in Vercel env vars. Make sure you're using the **pooler** connection string (port 6543, `pgbouncer=true`) — the direct URI (port 5432) won't work from Vercel |
 | Build fails with `Can't reach database server` | Remove `prisma migrate deploy` from build command (IPv6). Apply migrations via SQL Editor instead |
+| Runtime `Can't reach database server` on login | Update `DATABASE_URL` in Vercel env vars to use the **pooler** connection string (port 6543, `?pgbouncer=true`) instead of the direct URI |
 | `relation "User" does not exist` | You ran `seed.sql` **before** the migration SQL. Go back and run the migration SQL first (see Section 4.1 Step 1) |
 | `Migration not found` | Make sure `prisma/migrations/` is committed to git |
 | `bcryptjs` import error on Vercel | Ensure `serverExternalPackages: ["bcryptjs"]` is in `next.config.ts` |
