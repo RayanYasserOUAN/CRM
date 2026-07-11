@@ -37,7 +37,7 @@ The pooler supports **IPv4** and handles concurrency. This is what Vercel needs 
 
 The string looks like:
 ```
-postgresql://postgres:xxxxxx@aws-0-xx.pooler.supabase.com:6543/postgres?pgbouncer=true
+postgresql://postgres.PROJECT_REF:YOUR_PASSWORD@aws-0-xx.pooler.supabase.com:6543/postgres?pgbouncer=true
 ```
 
 Use this string for `DATABASE_URL` in Vercel environment variables.
@@ -85,7 +85,7 @@ In the **Environment Variables** section, add:
 
 | Name | Value |
 |---|---|
-| `DATABASE_URL` | The **pooling** connection string from Supabase (step 2.2 Option A — port 6543, not 5432) |
+| `DATABASE_URL` | The **pooling** connection string from Supabase (step 2.2 Option A — port 6543, format: `postgresql://postgres.PROJECT_REF:PASSWORD@aws-0-xx.pooler.supabase.com:6543/postgres?pgbouncer=true`) |
 | `JWT_SECRET` | A random secret string (run `openssl rand -base64 32` to generate) |
 
 ### 3.4 Override build command
