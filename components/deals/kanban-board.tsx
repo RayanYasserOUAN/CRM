@@ -80,36 +80,44 @@ export function KanbanBoard({ deals, contacts, onRefresh }: KanbanBoardProps) {
 
     const dealId = Number(active.id)
     const targetStage = String(over.id)
+    if (!stages.includes(targetStage)) return
 
-    if (stages.includes(targetStage)) {
-      const deal = deals.find((d) => d.id === dealId)
-      if (deal && deal.stage !== targetStage) {
-        await fetch(`/api/deals/${dealId}`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ stage: targetStage }),
-        })
-        onRefresh()
-      }
+    const deal = deals.find((d) => d.id === dealId)
+    if (!deal || deal.stage === targetStage) {
+      onRefresh()
+      return
     }
+
+    try {
+      await fetch(`/api/deals/${dealId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stage: targetStage }),
+      })
+    } catch (e) { console.error("Failed to update deal stage", e) }
+    onRefresh()
   }
 
   const handleDelete = async (id: number) => {
     if (!confirm("Delete this deal?")) return
-    await fetch(`/api/deals/${id}`, { method: "DELETE" })
+    try {
+      await fetch(`/api/deals/${id}`, { method: "DELETE" })
+    } catch (e) { console.error("Failed to delete deal", e) }
     onRefresh()
   }
 
   const handleCreate = async (data: any) => {
-    const res = await fetch("/api/deals", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    })
-    if (res.ok) {
-      setCreating(false)
-      onRefresh()
-    }
+    try {
+      const res = await fetch("/api/deals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+      if (res.ok) {
+        setCreating(false)
+        onRefresh()
+      }
+    } catch (e) { console.error("Failed to create deal", e) }
   }
 
   const activeDeal = activeId ? deals.find((d) => d.id === activeId) : null
@@ -131,37 +139,16 @@ export function KanbanBoard({ deals, contacts, onRefresh }: KanbanBoardProps) {
 
       <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {stages.map((stage) => {
-            const items = grouped[stage]
-            const total = stageTotals[stage]
-            return (
-              <div key={stage} className="flex flex-col rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800">
-                  <div className="flex items-center gap-2">
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${stageColors[stage]}`}>
-                      {stage}
-                    </span>
-                    <span className="text-xs text-slate-400">{items.length}</span>
-                  </div>
-                  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{formatCurrency(total)}</span>
-                </div>
-                <div
-                  className="flex flex-col gap-2 p-3 min-h-[200px] flex-1"
-                >
-                  <SortableContext items={items.map((d) => d.id)} strategy={verticalListSortingStrategy}>
-                    {items.map((deal) => (
-                      <DealCard key={deal.id} deal={deal} onDelete={handleDelete} />
-                    ))}
-                  </SortableContext>
-                  {items.length === 0 && (
-                    <div className="flex-1 flex items-center justify-center text-xs text-slate-400 py-8">
-                      Drop deals here
-                    </div>
-                  )}
-                </div>
-              </div>
-            )
-          })}
+          {stages.map((stage) => (
+            <StageColumn
+              key={stage}
+              stage={stage}
+              items={grouped[stage]}
+              total={stageTotals[stage]}
+              stageColor={stageColors[stage]}
+              onDelete={handleDelete}
+            />
+          ))}
         </div>
         <DragOverlay>
           {activeDeal && <div className="w-full max-w-xs"><DealCard deal={activeDeal} onDelete={() => {}} /></div>}
@@ -177,6 +164,42 @@ export function KanbanBoard({ deals, contacts, onRefresh }: KanbanBoardProps) {
           <DealForm contacts={contacts} onSave={handleCreate} onCancel={() => setCreating(false)} />
         </DialogContent>
       </Dialog>
+    </div>
+  )
+}
+
+interface StageColumnProps {
+  stage: string
+  items: Deal[]
+  total: number
+  stageColor: string
+  onDelete: (id: number) => void
+}
+
+function StageColumn({ stage, items, total, stageColor, onDelete }: StageColumnProps) {
+  return (
+    <div className="flex flex-col rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 dark:border-slate-800">
+        <div className="flex items-center gap-2">
+          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${stageColor}`}>
+            {stage}
+          </span>
+          <span className="text-xs text-slate-400">{items.length}</span>
+        </div>
+        <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{formatCurrency(total)}</span>
+      </div>
+      <div className="flex flex-col gap-2 p-3 min-h-[200px] flex-1">
+        <SortableContext items={items.map((d) => d.id)} strategy={verticalListSortingStrategy}>
+          {items.map((deal) => (
+            <DealCard key={deal.id} deal={deal} onDelete={onDelete} />
+          ))}
+        </SortableContext>
+        {items.length === 0 && (
+          <div className="flex-1 flex items-center justify-center text-xs text-slate-400 py-8">
+            Drop deals here
+          </div>
+        )}
+      </div>
     </div>
   )
 }

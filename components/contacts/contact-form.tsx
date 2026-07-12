@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -29,22 +29,18 @@ interface ContactFormProps {
 
 const statuses = ["Active", "Inactive", "Lead"]
 
-export function ContactForm({ contact, onSave, onCancel }: ContactFormProps) {
-  const [form, setForm] = useState<Contact>({
-    name: "", email: "", phone: "", company: "", status: "Active",
-  })
+function initForm(contact?: Contact | null): Contact {
+  return {
+    name: contact?.name || "",
+    email: contact?.email || "",
+    phone: contact?.phone || "",
+    company: contact?.company || "",
+    status: contact?.status || "Active",
+  }
+}
 
-  useEffect(() => {
-    if (contact) {
-      setForm({
-        name: contact.name || "",
-        email: contact.email || "",
-        phone: contact.phone || "",
-        company: contact.company || "",
-        status: contact.status || "Active",
-      })
-    }
-  }, [contact])
+export function ContactForm({ contact, onSave, onCancel }: ContactFormProps) {
+  const [form, setForm] = useState<Contact>(() => initForm(contact))
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

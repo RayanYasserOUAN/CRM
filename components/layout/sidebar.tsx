@@ -29,6 +29,43 @@ interface SidebarProps {
 export function Sidebar({ open, collapsed, onToggleCollapse, onClose }: SidebarProps) {
   const pathname = usePathname()
 
+  const renderNavItem = (item: typeof navigation[number]) => {
+    const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
+    return (
+      <Link
+        key={item.name}
+        href={item.href}
+        className={cn(
+          "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+          isActive
+            ? "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300"
+            : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100"
+        )}
+      >
+        <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-indigo-600 dark:text-indigo-400" : "")} />
+        <AnimatePresence mode="wait">
+          {!collapsed && (
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="whitespace-nowrap"
+            >
+              {item.name}
+            </motion.span>
+          )}
+        </AnimatePresence>
+        {isActive && (
+          <motion.div
+            layoutId="activeTab"
+            className="absolute inset-0 rounded-xl border border-indigo-200 dark:border-indigo-900/50"
+            transition={{ type: "spring", stiffness: 380, damping: 30 }}
+          />
+        )}
+      </Link>
+    )
+  }
+
   return (
     <>
       <AnimatePresence>
@@ -80,42 +117,7 @@ export function Sidebar({ open, collapsed, onToggleCollapse, onClose }: SidebarP
         <Separator className="mb-4" />
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                  isActive
-                    ? "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300"
-                    : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100"
-                )}
-              >
-                <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-indigo-600 dark:text-indigo-400" : "")} />
-                <AnimatePresence mode="wait">
-                  {!collapsed && (
-                    <motion.span
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="whitespace-nowrap"
-                    >
-                      {item.name}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-                {isActive && (
-                  <motion.div
-                    layoutId="activeTab"
-                    className="absolute inset-0 rounded-xl border border-indigo-200 dark:border-indigo-900/50"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                  />
-                )}
-              </Link>
-            )
-          })}
+          {navigation.map((item) => renderNavItem(item))}
         </nav>
 
         <Separator className="mt-4" />

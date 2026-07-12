@@ -17,7 +17,7 @@ export default function LoginPage() {
   useEffect(() => {
     fetch("/api/auth/me")
       .then((r) => { if (r.ok) window.location.href = "/" })
-      .catch(() => {})
+      .catch(() => console.error("Auth check failed"))
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {

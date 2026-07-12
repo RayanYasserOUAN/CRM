@@ -30,8 +30,12 @@ export function verifyToken(token: string): JwtPayload | null {
 }
 
 export async function getAuthUser(): Promise<JwtPayload | null> {
-  const store = await cookies()
-  const token = store.get("session")?.value
-  if (!token) return null
-  return verifyToken(token)
+  try {
+    const store = await cookies()
+    const token = store.get("session")?.value
+    if (!token) return null
+    return verifyToken(token)
+  } catch {
+    return null
+  }
 }

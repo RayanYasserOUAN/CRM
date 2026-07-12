@@ -16,7 +16,7 @@ export default function DealsPage() {
       const json = await res.json()
       setDeals(json.deals || [])
       setContacts(json.contacts || [])
-    } catch {}
+    } catch { console.error("Failed to fetch deals") }
   }
 
   useEffect(() => { fetchDeals() }, [])

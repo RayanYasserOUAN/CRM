@@ -14,7 +14,7 @@ export default function ContactsPage() {
       if (res.status === 401) { window.location.href = "/login"; return }
       const json = await res.json()
       setContacts(json.contacts || [])
-    } catch {}
+    } catch { console.error("Failed to fetch contacts") }
   }
 
   useEffect(() => { fetchContacts() }, [])
