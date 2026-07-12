@@ -15,8 +15,11 @@ export function notFound(message = "Not found") {
   return NextResponse.json({ error: message }, { status: 404 })
 }
 
-export function serverError(message = "Internal server error") {
-  return NextResponse.json({ error: message }, { status: 500 })
+export function serverError(message?: string) {
+  return NextResponse.json(
+    { error: message || "Internal server error" },
+    { status: 500 },
+  )
 }
 
 // ─── Async error wrapper ────────────────────────────────────────────────
@@ -35,11 +38,9 @@ export function apiHandler(handler: RouteHandler): RouteHandler {
     try {
       return await handler(...args)
     } catch (error) {
-      console.error("API Error:", error instanceof Error ? error.message : error)
-      if (error instanceof Error && error.stack) {
-        console.error(error.stack)
-      }
-      return serverError()
+      const message = error instanceof Error ? error.message : "Internal server error"
+      console.error("API Error:", message)
+      return serverError(message)
     }
   }
 }
