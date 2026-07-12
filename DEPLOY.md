@@ -188,3 +188,4 @@ docker rm crm-pg
 | Blank page after login | API error in browser | Open browser console (F12) and check the network tab for failed requests |
 | 401 on API calls | Expired session | Clear cookies and re-login |
 | `JWT_SECRET is not set` error on login | Missing env var at runtime | Add `JWT_SECRET` in Vercel env vars and redeploy |
+| `prepared statement "s0" already exists` error | Missing `connection_limit = 1` in Prisma schema | Add `connection_limit = 1` to the `datasource db` block in `prisma/schema.prisma` and redeploy |
