@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { AlertCircle } from "lucide-react"
 import { Users, TrendingUp, DollarSign, Activity } from "lucide-react"
 import { AppShell } from "@/components/layout/app-shell"
 import { StatsCard } from "@/components/dashboard/stats-card"
@@ -20,9 +20,9 @@ interface DashboardData {
 }
 
 export default function DashboardPage() {
-  const router = useRouter()
   const [userName, setUserName] = useState("User")
   const [data, setData] = useState<DashboardData | null>(null)
+  const [error, setError] = useState("")
 
   const fetchData = async () => {
     try {
@@ -30,22 +30,40 @@ export default function DashboardPage() {
         fetch("/api/dashboard"),
         fetch("/api/auth/me"),
       ])
-      if (dashRes.status === 401) { router.push("/login"); return }
+      if (dashRes.status === 401) { window.location.href = "/login"; return }
       if (meRes.ok) {
         const meData = await meRes.json()
         setUserName(meData.name)
       }
+      if (!dashRes.ok) {
+        const err = await dashRes.json()
+        setError(err.error || "Failed to load dashboard")
+        return
+      }
       const json = await dashRes.json()
       setData(json)
-    } catch {}
+    } catch (e) {
+      setError("Something went wrong loading the dashboard")
+    }
   }
 
   useEffect(() => { fetchData() }, [])
 
   const handleLogout = async () => {
     await fetch("/api/auth/login", { method: "DELETE" })
-    router.push("/login")
-    router.refresh()
+    window.location.href = "/login"
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-4">
+        <div className="text-center space-y-4">
+          <AlertCircle className="h-12 w-12 text-rose-500 mx-auto" />
+          <p className="text-slate-600 dark:text-slate-400">{error}</p>
+          <button onClick={() => window.location.href = "/login"} className="text-sm text-indigo-500 hover:underline">Go to login</button>
+        </div>
+      </div>
+    )
   }
 
   if (!data) return null

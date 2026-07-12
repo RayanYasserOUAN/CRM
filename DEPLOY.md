@@ -175,7 +175,7 @@ docker stop crm-pg
 docker rm crm-pg
 ```
 
----
+---##
 
 ## Troubleshooting
 
@@ -187,3 +187,13 @@ docker rm crm-pg
 | Blank page after login | API error in browser | Open browser console (F12) and check the network tab for failed requests |
 | 401 on API calls | Expired session | Clear cookies and re-login |
 | `JWT_SECRET is not set` error on login | Missing env var at runtime | Add `JWT_SECRET` in Vercel env vars and redeploy |
+
+
+
+
+
+
+
+
+
+

@@ -1,19 +1,17 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { AppShell } from "@/components/layout/app-shell"
 import { ContactList } from "@/components/contacts/contact-list"
 
 export default function ContactsPage() {
-  const router = useRouter()
   const [userName, setUserName] = useState("User")
   const [contacts, setContacts] = useState<any[]>([])
 
   const fetchContacts = async () => {
     try {
       const res = await fetch("/api/contacts")
-      if (res.status === 401) { router.push("/login"); return }
+      if (res.status === 401) { window.location.href = "/login"; return }
       const json = await res.json()
       setContacts(json.contacts || [])
     } catch {}
@@ -23,8 +21,7 @@ export default function ContactsPage() {
 
   const handleLogout = async () => {
     await fetch("/api/auth/login", { method: "DELETE" })
-    router.push("/login")
-    router.refresh()
+    window.location.href = "/login"
   }
 
   return (
