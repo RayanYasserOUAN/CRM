@@ -28,22 +28,22 @@
 4. Choose a region close to your users
 5. Click **Create new project** (takes ~1 minute)
 
-### 1.2 Copy the database connection string
+### 1.2 Copy the pooler connection string
+
+Vercel runs on IPv4, but Supabase's direct database (port 5432) is IPv6 only. You **must** use the pooler connection (port 6543).
 
 1. In Supabase Dashboard, go to **Project Settings** → **Database**
-2. Under **Connection string**, select the **URI** tab
+2. Under **Connection string**, select the **Pooling** tab
 3. Copy the full `postgresql://` string
 4. Replace `[YOUR-PASSWORD]` with the password from step 1.1
 
 You'll end up with something like:
 
 ```
-postgresql://postgres:YOUR_PASSWORD@db.xxxxxxxxxxxx.supabase.co:5432/postgres
+postgresql://postgres.PROJECT_REF:YOUR_PASSWORD@aws-0-xx.pooler.supabase.com:6543/postgres?pgbouncer=true
 ```
 
 Keep this handy — you'll need it in Phase 2.
-
-> **Note:** If your Vercel deployment has IPv6 connectivity issues, use the **Pooling** tab instead (port 6543) and append `?pgbouncer=true` to the URL.
 
 ---
 
@@ -56,7 +56,7 @@ Keep this handy — you'll need it in Phase 2.
 
 | Name | Value |
 |---|---|
-| `DATABASE_URL` | The connection string from Phase 1.2 (port 5432) |
+| `DATABASE_URL` | The **pooler** connection string from Phase 1.2 (port 6543, `?pgbouncer=true`) |
 | `JWT_SECRET` | Run `openssl rand -base64 32` in your terminal and paste the output |
 
 3. For both, set the scope to **Production** (and Preview if you want preview deployments to work).
@@ -73,7 +73,7 @@ npx prisma generate && next build
 
 If it's missing `npx prisma generate &&`, update it now.
 
-> **Note:** Migrations are applied manually via the SQL Editor after deploy — see [Phase 4](#phase-4-seed-the-database-first-time-only).
+> **Why not `prisma migrate deploy`?** Vercel's build runners use IPv4-only infrastructure and cannot reach Supabase's direct database endpoint (IPv6). Migrations are applied manually via the SQL Editor after deploy — see [Phase 4](#phase-4-seed-the-database-first-time-only).
 
 ---
 
@@ -182,33 +182,8 @@ docker rm crm-pg
 | Problem | Likely cause | Fix |
 |---|---|---|
 | Build fails | `JWT_SECRET` or `DATABASE_URL` missing in Vercel env vars | Add them in Vercel Dashboard → Settings → Environment Variables |
-| Prisma schema validation error: `connection_limit` | Invalid property in `schema.prisma` | Remove `connection_limit` from the datasource block — it's not a valid Prisma property |
+| `Can't reach database server` error | Using direct connection (port 5432) instead of pooler | Change `DATABASE_URL` to the **Pooling** connection string (port 6543, `?pgbouncer=true`) |
 | `relation "User" does not exist` | Migration SQL was never run | Go to Supabase SQL Editor and run the migration SQL from Phase 4 Step 1 |
 | Blank page after login | API error in browser | Open browser console (F12) and check the network tab for failed requests |
 | 401 on API calls | Expired session | Clear cookies and re-login |
 | `JWT_SECRET is not set` error on login | Missing env var at runtime | Add `JWT_SECRET` in Vercel env vars and redeploy |
-
-
-
-
-
-
-
-
-
-
-
-Running build in Washington, D.C., USA (East) – iad1
-Build machine configuration: 2 cores, 8 GB
-Cloning github.com/RayanYasserOUAN/CRM (Branch: main, Commit: e21f95b)
-Cloning completed: 200.000ms
-Restored build cache from previous deployment (3py8BKzcZsCUGKzHqHfgURhPCCq8)
-Running "vercel build"
-Vercel CLI 55.0.0
-Installing dependencies...
-> crm@0.1.0 postinstall
-> prisma generate
-Prisma schema loaded from prisma/schema.prisma
-Error: Prisma schema validation - (get-config wasm)
-Error code: P1012
-error: Property not known: "connection_limit".
