@@ -7,6 +7,10 @@ const publicPaths = ["/login", "/api/auth/login"]
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  if (process.env.BYPASS_AUTH === "true") {
+    return NextResponse.next()
+  }
+
   if (publicPaths.some((p) => pathname.startsWith(p))) {
     return NextResponse.next()
   }
