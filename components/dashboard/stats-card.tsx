@@ -26,7 +26,7 @@ export function StatsCard({ title, value, subtitle, icon, trend }: StatsCardProp
               </p>
             )}
           </div>
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
             {icon}
           </div>
         </div>

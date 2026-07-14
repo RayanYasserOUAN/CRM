@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { TrendingUp } from "lucide-react"
 import { AppShell } from "@/components/layout/app-shell"
 import { KanbanBoard } from "@/components/deals/kanban-board"
 
@@ -12,7 +13,6 @@ export default function DealsPage() {
   const fetchDeals = async () => {
     try {
       const res = await fetch("/api/deals")
-      if (res.status === 401) { window.location.href = "/login"; return }
       const json = await res.json()
       setDeals(json.deals || [])
       setContacts(json.contacts || [])
@@ -23,12 +23,20 @@ export default function DealsPage() {
 
   const handleLogout = async () => {
     await fetch("/api/auth/login", { method: "DELETE" })
-    window.location.href = "/login"
+    window.location.href = "/"
   }
 
   return (
     <AppShell userName={userName} onLogout={handleLogout}>
-      <KanbanBoard deals={deals} contacts={contacts} onRefresh={fetchDeals} />
+      {deals.length === 0 ? (
+        <div className="text-center py-16">
+          <TrendingUp className="h-12 w-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-1">No deals yet</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Create your first deal to start building your pipeline.</p>
+        </div>
+      ) : (
+        <KanbanBoard deals={deals} contacts={contacts} onRefresh={fetchDeals} />
+      )}
     </AppShell>
   )
 }

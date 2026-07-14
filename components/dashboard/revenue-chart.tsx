@@ -29,7 +29,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
                 }}
                 formatter={(value: number) => [`$${value.toLocaleString()}`, "Revenue"]}
               />
-              <Bar dataKey="revenue" fill="#6366f1" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="revenue" fill="#2563eb" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -36,7 +36,7 @@ export function Header({ onMenuClick, userName, onLogout }: HeaderProps) {
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="flex items-center gap-2 rounded-xl px-2 h-10">
             <Avatar className="h-8 w-8">
-              <AvatarFallback className="text-xs bg-gradient-to-br from-indigo-400 to-violet-500 text-white">
+              <AvatarFallback className="text-xs bg-gradient-to-br from-blue-500 to-blue-400 text-white">
                 {getInitials(userName)}
               </AvatarFallback>
             </Avatar>

@@ -38,11 +38,11 @@ export function Sidebar({ open, collapsed, onToggleCollapse, onClose }: SidebarP
         className={cn(
           "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
           isActive
-            ? "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300"
+            ? "bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300"
             : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-100"
         )}
       >
-        <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-indigo-600 dark:text-indigo-400" : "")} />
+        <item.icon className={cn("h-5 w-5 shrink-0", isActive ? "text-blue-600 dark:text-blue-400" : "")} />
         <AnimatePresence mode="wait">
           {!collapsed && (
             <motion.span
@@ -58,7 +58,7 @@ export function Sidebar({ open, collapsed, onToggleCollapse, onClose }: SidebarP
         {isActive && (
           <motion.div
             layoutId="activeTab"
-            className="absolute inset-0 rounded-xl border border-indigo-200 dark:border-indigo-900/50"
+            className="absolute inset-0 rounded-xl border border-blue-200 dark:border-blue-900/50"
             transition={{ type: "spring", stiffness: 380, damping: 30 }}
           />
         )}
@@ -90,7 +90,7 @@ export function Sidebar({ open, collapsed, onToggleCollapse, onClose }: SidebarP
       >
         <div className="flex h-16 items-center justify-between gap-3 px-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 shadow-lg shadow-indigo-500/25">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-500 shadow-lg shadow-blue-500/25">
               <TrendingUp className="h-5 w-5 text-white" />
             </div>
             <AnimatePresence mode="wait">
