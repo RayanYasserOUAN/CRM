@@ -1,7 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, LabelList } from "recharts"
 
 interface RevenueChartProps {
   data: { month: string; revenue: number }[]
@@ -29,7 +29,9 @@ export function RevenueChart({ data }: RevenueChartProps) {
                 }}
                 formatter={(value: number) => [`$${value.toLocaleString()}`, "Revenue"]}
               />
-              <Bar dataKey="revenue" fill="#2563eb" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="revenue" fill="#2563eb" radius={[6, 6, 0, 0]}>
+                <LabelList dataKey="revenue" position="top" formatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} style={{ fontSize: "11px", fill: "oklch(0.55 0 0)" }} />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>

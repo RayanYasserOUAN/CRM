@@ -13,7 +13,7 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, subtitle, icon, trend }: StatsCardProps) {
   return (
-    <Card>
+    <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-1.5">

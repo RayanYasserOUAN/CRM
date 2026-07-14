@@ -2,8 +2,8 @@
 
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { Trash2 } from "lucide-react"
-import { formatCurrency } from "@/lib/utils"
+import { Trash2, User } from "lucide-react"
+import { formatCurrency, getInitials } from "@/lib/utils"
 
 interface Deal {
   id: number
@@ -35,7 +35,7 @@ export function DealCard({ deal, onDelete }: DealCardProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm hover:shadow-md transition-shadow cursor-grab active:cursor-grabbing"
+      className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing active:scale-[1.02]"
     >
       <div className="flex items-start justify-between gap-2">
         <h4 className="text-sm font-medium text-slate-900 dark:text-white leading-snug">{deal.title}</h4>
@@ -46,9 +46,14 @@ export function DealCard({ deal, onDelete }: DealCardProps) {
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       </div>
-      <p className="text-base font-semibold text-indigo-600 dark:text-indigo-400 mt-2">{formatCurrency(deal.value)}</p>
+      <p className="text-base font-semibold text-blue-600 dark:text-blue-400 mt-2">{formatCurrency(deal.value)}</p>
       {deal.contactName && (
-        <p className="text-xs text-slate-400 mt-1.5 truncate">{deal.contactName}</p>
+        <div className="flex items-center gap-1.5 mt-1.5">
+          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+            <span className="text-[9px] font-medium">{getInitials(deal.contactName)}</span>
+          </div>
+          <span className="text-xs text-slate-400 truncate">{deal.contactName}</span>
+        </div>
       )}
     </div>
   )

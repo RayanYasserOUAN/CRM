@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
+import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 interface AppShellProps {
@@ -29,7 +29,15 @@ export function AppShell({ children, userName, onLogout }: AppShellProps) {
         collapsed ? "lg:pl-[72px]" : "lg:pl-[260px]"
       )}>
         <Header onMenuClick={() => setSidebarOpen(true)} userName={userName} onLogout={onLogout} />
-        <main className="p-3 sm:p-4 lg:p-6">{children}</main>
+        <main id="main-content" className="p-3 sm:p-4 lg:p-6">
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
+            {children}
+          </motion.div>
+        </main>
       </div>
     </div>
   )

@@ -75,7 +75,7 @@ export function ContactList({ contacts, onRefresh }: ContactListProps) {
             {contacts.map((contact) => (
               <div key={contact.id} className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                 <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-sm">
+                  <AvatarFallback className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm">
                     {getInitials(contact.name)}
                   </AvatarFallback>
                 </Avatar>

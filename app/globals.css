@@ -27,6 +27,19 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+:root {
+  --color-ring: #2563eb;
+}
+
+.dark {
+  --color-ring: #3b82f6;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 2px;
+}
+
 * {
   scrollbar-width: thin;
   scrollbar-color: oklch(0.87 0 0) transparent;
